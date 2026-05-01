@@ -78,6 +78,18 @@ public final class MPBController<Item: MPBIdentifiable>: ObservableObject {
     }
 
     public func refresh() async {
+        await refresh(silent: true)
+    }
+
+    /// Refreshes data from the first page.
+    /// - Parameter silent: When `true`, keeps current items visible until fresh data arrives.
+    ///   This mode is recommended for `.refreshable` to avoid scroll/header glitches.
+    public func refresh(silent: Bool) async {
+        if silent {
+            await refreshSilently()
+            return
+        }
+
         isLoading = false
         state = MPBControllerState(items: [], currentPage: initialPageIndex - 1)
         await loadNextPage()
@@ -135,5 +147,27 @@ public final class MPBController<Item: MPBIdentifiable>: ObservableObject {
 
     public func addLast(_ item: Item) {
         _ = insert(state.items.count, item: item)
+    }
+
+    private func refreshSilently() async {
+        if isLoading {
+            return
+        }
+
+        isLoading = true
+
+        do {
+            let firstPageItems = try await dataLoader(initialPageIndex, pageSize, internalFilters)
+            state = MPBControllerState(
+                items: firstPageItems,
+                isFirstPage: false,
+                currentPage: initialPageIndex,
+                isLastPage: firstPageItems.count != pageSize
+            )
+        } catch {
+            // Matches original behavior: errors are swallowed.
+        }
+
+        isLoading = false
     }
 }

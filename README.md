@@ -73,6 +73,10 @@ struct FeedView: View {
                 Text("No items")
             }
         )
+        .refreshable {
+            await vm.controller.refresh() // Silent by default, suitable for pull-to-refresh.
+            // Or explicitly: await vm.controller.refresh(silent: true)
+        }
     }
 }
 ```
