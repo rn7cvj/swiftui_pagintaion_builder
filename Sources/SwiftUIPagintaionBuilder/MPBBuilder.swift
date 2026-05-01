@@ -1,7 +1,7 @@
 import SwiftUI
 
 public struct MPBBuilder<
-    Item: MPBIdentifiable,
+    Item: Identifiable,
     ItemContent: View,
     FirstLoadingContent: View,
     EmptyContent: View
@@ -49,7 +49,7 @@ public struct MPBBuilder<
                 if !controller.state.isFirstPage && !controller.state.items.isEmpty {
                     ScrollView {
                         LazyVStack(spacing: spacing) {
-                            ForEach(Array(renderedItems.enumerated()), id: \.element.mpbId) { index, item in
+                            ForEach(Array(renderedItems.enumerated()), id: \.element.id) { index, item in
                                 itemBuilder(
                                     contentWidth,
                                     item,

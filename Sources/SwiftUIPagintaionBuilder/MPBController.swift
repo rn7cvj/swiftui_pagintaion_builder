@@ -1,18 +1,14 @@
 import Foundation
 import Combine
 
-public protocol MPBIdentifiable: Identifiable {
-    var mpbId: Int { get }
-}
-
-public typealias MPBDataLoader<Item: MPBIdentifiable> = (
+public typealias MPBDataLoader<Item: Identifiable> = (
     _ pageIndex: Int,
     _ pageSize: Int,
     _ filters: [String: Any]?
 ) async throws -> [Item]
 
 @MainActor
-public final class MPBController<Item: MPBIdentifiable>: ObservableObject {
+public final class MPBController<Item: Identifiable>: ObservableObject {
     @Published public private(set) var state: MPBControllerState<Item>
 
     public let dataLoader: MPBDataLoader<Item>
@@ -108,7 +104,7 @@ public final class MPBController<Item: MPBIdentifiable>: ObservableObject {
 
     @discardableResult
     public func updateById(_ item: Item) -> Bool {
-        guard let index = state.items.firstIndex(where: { $0.mpbId == item.mpbId }) else {
+        guard let index = state.items.firstIndex(where: { $0.id == item.id }) else {
             return false
         }
 
@@ -119,8 +115,8 @@ public final class MPBController<Item: MPBIdentifiable>: ObservableObject {
     }
 
     @discardableResult
-    public func deleteById(_ id: Int) -> Bool {
-        let updatedItems = state.items.filter { $0.mpbId != id }
+    public func deleteById(_ id: Item.ID) -> Bool {
+        let updatedItems = state.items.filter { $0.id != id }
         guard updatedItems.count != state.items.count else {
             return false
         }

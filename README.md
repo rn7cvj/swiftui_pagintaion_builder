@@ -7,7 +7,6 @@ Reusable Swift Package with a pagination controller and SwiftUI list builder.
 - `MPBController`
 - `MPBControllerState`
 - `MPBBuilder`
-- `MPBIdentifiable`
 
 ## Requirements
 
@@ -41,9 +40,8 @@ Then add the product:
 import SwiftUI
 import SwiftUIPagintaionBuilder
 
-struct FeedItem: MPBIdentifiable {
+struct FeedItem: Identifiable {
     let id: UUID
-    let mpbId: Int
     let title: String
 }
 

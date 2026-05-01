@@ -1,6 +1,6 @@
 import Foundation
 
-public struct MPBControllerState<Item: MPBIdentifiable> {
+public struct MPBControllerState<Item: Identifiable> {
     public var items: [Item]
     public var isFirstPage: Bool
     public var currentPage: Int
@@ -19,4 +19,4 @@ public struct MPBControllerState<Item: MPBIdentifiable> {
     }
 }
 
-public typealias MBDControllerState<Item: MPBIdentifiable> = MPBControllerState<Item>
+public typealias MBDControllerState<Item: Identifiable> = MPBControllerState<Item>
