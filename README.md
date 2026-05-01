@@ -26,7 +26,7 @@ Local package:
 Remote package:
 
 ```swift
-.package(url: "https://github.com/rn7cvj/swiftui_pagintaion_builder.git", from: "1.0.0")
+.package(url: "https://github.com/rn7cvj/swiftui_pagintaion_builder.git", from: "main")
 ```
 
 Then add the product:
