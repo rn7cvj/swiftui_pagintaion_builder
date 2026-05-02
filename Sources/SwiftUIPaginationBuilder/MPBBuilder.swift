@@ -8,14 +8,15 @@ public struct MPBBuilder<
 >: View {
     @ObservedObject private var controller: MPBController<Item>
 
-    private let itemBuilder: (_ width: CGFloat, _ item: Item, _ index: Int, _ isFirst: Bool, _ isLast: Bool) -> ItemContent
-    private let firstLoadingBuilder: (_ width: CGFloat) -> FirstLoadingContent
-    private let noItemBuilder: (_ width: CGFloat) -> EmptyContent
+    private let itemBuilder: (_ item: Item, _ index: Int, _ isFirst: Bool, _ isLast: Bool) -> ItemContent
+    private let firstLoadingBuilder: () -> FirstLoadingContent
+    private let noItemBuilder: () -> EmptyContent
 
     private let spacing: CGFloat
     private let padding: EdgeInsets
     private let loadMoreOffset: CGFloat
     private let reversed: Bool
+    private let refresh: (() async -> Void)?
 
     public init(
         controller: MPBController<Item>,
@@ -23,15 +24,17 @@ public struct MPBBuilder<
         padding: EdgeInsets = EdgeInsets(),
         loadMoreOffset: CGFloat = 256,
         reversed: Bool = false,
-        @ViewBuilder itemBuilder: @escaping (_ width: CGFloat, _ item: Item, _ index: Int, _ isFirst: Bool, _ isLast: Bool) -> ItemContent,
-        @ViewBuilder firstLoadingBuilder: @escaping (_ width: CGFloat) -> FirstLoadingContent,
-        @ViewBuilder noItemBuilder: @escaping (_ width: CGFloat) -> EmptyContent
+        refresh: (() async -> Void)? = nil,
+        @ViewBuilder itemBuilder: @escaping (_ item: Item, _ index: Int, _ isFirst: Bool, _ isLast: Bool) -> ItemContent,
+        @ViewBuilder firstLoadingBuilder: @escaping () -> FirstLoadingContent,
+        @ViewBuilder noItemBuilder: @escaping () -> EmptyContent
     ) {
         self.controller = controller
         self.spacing = spacing
         self.padding = padding
         self.loadMoreOffset = loadMoreOffset
         self.reversed = reversed
+        self.refresh = refresh
         self.itemBuilder = itemBuilder
         self.firstLoadingBuilder = firstLoadingBuilder
         self.noItemBuilder = noItemBuilder
@@ -42,38 +45,44 @@ public struct MPBBuilder<
     }
 
     public var body: some View {
-        GeometryReader { geometry in
-            let contentWidth = max(0, geometry.size.width - padding.leading - padding.trailing)
+        Group {
+            if !controller.state.isFirstPage && !controller.state.items.isEmpty {
+                if let refresh {
+                    contentScrollView()
+                        .refreshable {
+                            await refresh()
+                        }
+                } else {
+                    contentScrollView()
+                }
+            } else if controller.state.isFirstPage {
+                firstLoadingBuilder()
+            } else {
+                noItemBuilder()
+            }
+        }
+    }
 
-            Group {
-                if !controller.state.isFirstPage && !controller.state.items.isEmpty {
-                    ScrollView {
-                        LazyVStack(spacing: spacing) {
-                            ForEach(Array(renderedItems.enumerated()), id: \.element.id) { index, item in
-                                itemBuilder(
-                                    contentWidth,
-                                    item,
-                                    index,
-                                    index == 0,
-                                    index == renderedItems.count - 1
-                                )
-                                .onAppear {
-                                    if shouldLoadMore(index: index, count: renderedItems.count) {
-                                        Task {
-                                            await controller.loadNextPage()
-                                        }
-                                    }
-                                }
+    private func contentScrollView() -> some View {
+        ScrollView {
+            LazyVStack(spacing: spacing) {
+                ForEach(Array(renderedItems.enumerated()), id: \.element.id) { index, item in
+                    itemBuilder(
+                        item,
+                        index,
+                        index == 0,
+                        index == renderedItems.count - 1
+                    )
+                    .onAppear {
+                        if shouldLoadMore(index: index, count: renderedItems.count) {
+                            Task {
+                                await controller.loadNextPage()
                             }
                         }
-                        .padding(padding)
                     }
-                } else if controller.state.isFirstPage {
-                    firstLoadingBuilder(contentWidth)
-                } else {
-                    noItemBuilder(contentWidth)
                 }
             }
+            .padding(padding)
         }
     }
 
