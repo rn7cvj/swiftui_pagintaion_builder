@@ -2,21 +2,21 @@
 import PackageDescription
 
 let package = Package(
-    name: "swiftui_pagintaion_builder",
+    name: "swiftui_pagination_builder",
     platforms: [
         .iOS(.v15),
         .macOS(.v12)
     ],
     products: [
         .library(
-            name: "SwiftUIPagintaionBuilder",
-            targets: ["SwiftUIPagintaionBuilder"]
+            name: "SwiftUIPaginationBuilder",
+            targets: ["SwiftUIPaginationBuilder"]
         )
     ],
     targets: [
         .target(
-            name: "SwiftUIPagintaionBuilder",
-            path: "Sources/SwiftUIPagintaionBuilder"
+            name: "SwiftUIPaginationBuilder",
+            path: "Sources/SwiftUIPaginationBuilder"
         )
     ]
 )

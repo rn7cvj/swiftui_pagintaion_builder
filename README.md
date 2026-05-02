@@ -1,4 +1,4 @@
-# swiftui_pagintaion_builder
+# swiftui_pagination_builder
 
 Reusable Swift Package with a pagination controller and SwiftUI list builder.
 
@@ -19,26 +19,26 @@ Reusable Swift Package with a pagination controller and SwiftUI list builder.
 Local package:
 
 ```swift
-.package(path: "swiftui_pagintaion_builder")
+.package(path: "swiftui_pagination_builder")
 ```
 
 Remote package:
 
 ```swift
-.package(url: "https://github.com/rn7cvj/swiftui_pagintaion_builder.git", from: "main")
+.package(url: "https://github.com/rn7cvj/swiftui_pagination_builder.git", from: "main")
 ```
 
 Then add the product:
 
 ```swift
-.product(name: "SwiftUIPagintaionBuilder", package: "swiftui_pagintaion_builder")
+.product(name: "SwiftUIPaginationBuilder", package: "swiftui_pagination_builder")
 ```
 
 ## Quick Example
 
 ```swift
 import SwiftUI
-import SwiftUIPagintaionBuilder
+import SwiftUIPaginationBuilder
 
 struct FeedItem: Identifiable {
     let id: UUID
